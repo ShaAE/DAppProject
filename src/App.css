@@ -2,6 +2,16 @@
   text-align: center;
 }
 
+div {
+  margin: 3px;
+  padding: 3px;
+}
+
+#content {
+  background-color: aquamarine;
+  width: 250px;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
