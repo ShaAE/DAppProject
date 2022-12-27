@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Web3 from "web3";
 import "./App.css";
 import { SMART_CONTRACT_ABI, SMART_CONTRACT_ADDRESS } from "./config";
+import Upload from "./Upload";
 import View from "./View";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -17,10 +18,10 @@ class App extends Component {
       const currentProvider = this.detectCurrentProvider();
       if (currentProvider) {
         const currentProvider = this.detectCurrentProvider();
-        await currentProvider.request({ method: "eth_requestAccounts" })
+        await currentProvider.request({ method: "eth_requestAccounts" });
         const web3 = new Web3(currentProvider);
-        this.setState({web3})
-        const account = await web3.eth.getAccounts()
+        this.setState({ web3 });
+        const account = await web3.eth.getAccounts();
         this.setState({ account: account[0] });
         const balance = await web3.eth.getBalance(account[0]);
         this.setState({ balance: web3.utils.fromWei(balance) });
@@ -78,6 +79,8 @@ class App extends Component {
       images: [],
       loading: true,
       contract: {},
+      uploadImage: false,
+      changeImageInformation: false
     };
     this.uploadImage = this.uploadImage.bind(this);
     this.changeSoldStatus = this.changeSoldStatus.bind(this);
@@ -86,6 +89,7 @@ class App extends Component {
     this.buyImage = this.buyImage.bind(this);
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
+    this.toUploadWindow = this.toUploadWindow.bind(this);
   }
 
   uploadImage(cid, price, description) {
@@ -141,7 +145,9 @@ class App extends Component {
   async updateData() {
     const balance = await this.state.web3.eth.getBalance(this.state.account);
     this.setState({ balance: this.state.utils.fromWei(balance) });
-    const amountOfImages = await this.state.contract.methods.amountOfImages().call();
+    const amountOfImages = await this.state.contract.methods
+      .amountOfImages()
+      .call();
     this.setState({ amountOfImages });
     this.setState({ images: [] });
     for (let i = 1; i <= amountOfImages; i++) {
@@ -161,6 +167,10 @@ class App extends Component {
 
   onDisconnect() {
     this.setState({ isConnected: false });
+  }
+
+  toUploadWindow() {
+    this.setState({ uploadImage: true });
   }
 
   render() {
@@ -195,11 +205,19 @@ class App extends Component {
                           <p>Адреса облікового запису: {this.state.account}</p>
                           <p>Баланс: {this.state.balance} Ether</p>
                         </div>
-                        <View
-                          images={this.state.images}
-                          uploadImage={this.uploadImage}
-                          changeSoldStatus={this.changeSoldStatus}
-                        />
+                        <button
+                          className="btn btn-primary"
+                          onClick={this.toUploadWindow}
+                        >
+                          Перейти до вікна завантаження нового зображення
+                        </button>
+                        {this.state.uploadImage ? (
+                          <Upload uploadImage={this.uploadImage} />
+                        ) : (
+                          <View
+                            images={this.state.images}
+                          />
+                        )}
                       </div>
                     )}
                   </main>

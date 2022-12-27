@@ -1,47 +1,18 @@
 import React, { Component } from "react";
 
-class TodoList extends Component {
+class View extends Component {
   render() {
     return (
-      <div id="content">
-        <form
-          className="text-center"
-          onSubmit={(event) => {
-            event.preventDefault();
-            this.props.uploadImage(this.price.value, this.description.value);
-          }}
-        >
-          <input
-            id="price"
-            ref={(input) => {
-              this.price = input;
-            }}
-            type="text"
-            className="form-control"
-            placeholder="Вкажіть назву зображення"
-            required
-          />
-          <input
-            id="description"
-            ref={(input) => {
-              this.description = input;
-            }}
-            type="text"
-            className="form-control"
-            placeholder="Вкажіть назву зображення"
-            required
-          />
-          <input
-            className="btn btn-primary"
-            type="submit"
-            value="Підтвердити"
-          />
-        </form>
-        <ul id="taskList" className="list-ustyled">
-          {this.props.tasks.map((task, key) => {
+      <div id="content" className="text-center">
+        <ul id="imageList" className="list-ustyled">
+          {this.props.images.map((image, key) => {
             return (
-              <div className="taskTemplate" key={key}>
-                <label>
+              <div className="imageContainer" key={key}>
+                <img src={`http://localhost:8080/ipfs/${image.cid}`} />
+                <p>Назва зображення: {image.description}</p>
+                <p>Ціна: {image.price} Wei</p>
+                <p>Адреса власника: {image.owner}</p>
+                {/* <label>
                   <input
                     type="checkbox"
                     name={task.id}
@@ -53,8 +24,7 @@ class TodoList extends Component {
                       this.props.toggleCompleted(task.id);
                     }}
                   />
-                  <span className="content">{task.content}</span>
-                </label>
+                </label> */}
               </div>
             );
           })}
@@ -64,4 +34,4 @@ class TodoList extends Component {
   }
 }
 
-export default TodoList;
+export default View;
