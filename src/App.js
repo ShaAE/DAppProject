@@ -6,33 +6,40 @@ import TodoList from "./TodoList";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 class App extends Component {
+  //При завантаженні сторінки потрібно перевірити чи є в користувача Metamask
   componentWillMount() {
     this.findMetamask();
-    // this.loadBlockchainData()
   }
 
+  //Під'єднати сторінку до Metamask і отримати дані смарт-контракту
   async loadBlockchainData() {
-    const currentProvider = this.detectCurrentProvider();
-    if (currentProvider) {
+    try {
       const currentProvider = this.detectCurrentProvider();
-      await currentProvider.request({ method: "eth_requestAccounts" });
-      const web3 = new Web3(currentProvider);
-      const account = await web3.eth.getAccounts();
-      this.setState({ account: account[0] });
-      const contract = new web3.eth.Contract(
-        SMART_CONTRACT_ABI,
-        SMART_CONTRACT_ADDRESS
-      );
-      this.setState({ contract });
-      this.setState({ isConnected: true });
-      const taskCount = await contract.methods.taskCount().call();
-      this.setState({ taskCount });
-      this.setState({ tasks: [] });
-      for (let i = 1; i <= taskCount; i++) {
-        const task = await contract.methods.tasks(i).call();
-        this.setState({ tasks: [...this.state.tasks, task] });
+      if (currentProvider) {
+        const currentProvider = this.detectCurrentProvider();
+        await currentProvider.request({ method: "eth_requestAccounts" });
+        const web3 = new Web3(currentProvider);
+        const account = await web3.eth.getAccounts();
+        this.setState({ account: account[0] });
+        const balance = await web3.eth.getBalance(account[0]);
+        this.setState({ balance: web3.utils.fromWei(balance) });
+        const contract = new web3.eth.Contract(
+          SMART_CONTRACT_ABI,
+          SMART_CONTRACT_ADDRESS
+        );
+        this.setState({ contract });
+        this.setState({ isConnected: true });
+        const taskCount = await contract.methods.taskCount().call();
+        this.setState({ taskCount });
+        this.setState({ tasks: [] });
+        for (let i = 1; i <= taskCount; i++) {
+          const task = await contract.methods.tasks(i).call();
+          this.setState({ tasks: [...this.state.tasks, task] });
+        }
+        this.setState({ loading: false });
       }
-      this.setState({ loading: false });
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -65,9 +72,10 @@ class App extends Component {
       hasMetamask: false,
       account: "",
       taskCount: 0,
+      balance: 0,
       tasks: [],
       loading: true,
-      contract: {}
+      contract: {},
     };
     this.createTask = this.createTask.bind(this);
     this.toggleCompleted = this.toggleCompleted.bind(this);
@@ -82,7 +90,6 @@ class App extends Component {
       .send({ from: this.state.account })
       .once("receipt", (receipt) => {
         this.updateData();
-        // this.setState({ loading: false })
       });
   }
 
@@ -93,28 +100,23 @@ class App extends Component {
       .send({ from: this.state.account })
       .once("receipt", (receipt) => {
         this.updateData();
-        // this.setState({ loading: false });
       });
   }
 
   async updateData() {
     const taskCount = await this.state.contract.methods.taskCount().call();
-      this.setState({ taskCount });
-      this.setState({ tasks: [] });
-      for (let i = 1; i <= taskCount; i++) {
-        const task = await this.state.contract.methods.tasks(i).call();
-        this.setState({ tasks: [...this.state.tasks, task] });
-      }
-      this.setState({ loading: false });
+    this.setState({ taskCount });
+    this.setState({ tasks: [] });
+    for (let i = 1; i <= taskCount; i++) {
+      const task = await this.state.contract.methods.tasks(i).call();
+      this.setState({ tasks: [...this.state.tasks, task] });
+    }
+    this.setState({ loading: false });
   }
 
   onConnect() {
     try {
       this.loadBlockchainData();
-
-      // setEthBalance(ethBalance);
-      // this.setState({ isConnected: true });
-      // this.setState({ ethBalance: ethBalance });
     } catch (err) {
       console.log(err.message);
     }
@@ -135,10 +137,7 @@ class App extends Component {
                   <h1 className="alert alert-success">
                     Metamask is found, please click Login, to connect page!
                   </h1>
-                  <button
-                    className="btn btn-success"
-                    onClick={this.onConnect}
-                  >
+                  <button className="btn btn-success" onClick={this.onConnect}>
                     Login
                   </button>
                 </div>
@@ -153,11 +152,18 @@ class App extends Component {
                         Loading...
                       </div>
                     ) : (
-                      <TodoList
-                        tasks={this.state.tasks}
-                        createTask={this.createTask}
-                        toggleCompleted={this.toggleCompleted}
-                      />
+                      <div id="main">
+                        <div className="container p-3 my-3 bg-primary text-white">
+                          <h1>Інформація про користувача</h1>
+                          <p>Адреса облікового запису: {this.state.account}</p>
+                          <p>Баланс: {this.state.balance} Ether</p>
+                        </div>
+                        <TodoList
+                          tasks={this.state.tasks}
+                          createTask={this.createTask}
+                          toggleCompleted={this.toggleCompleted}
+                        />
+                      </div>
                     )}
                   </main>
                 </div>
@@ -169,11 +175,6 @@ class App extends Component {
               зробити це, перейдіть за{" "}
               <a href="https://metamask.io/download/">Посиланням</a>
             </h1>
-            // <div>
-            //   <h1>You have successfully connected to Metamask.</h1>
-            //   <h2>Balance: {this.state.ethBalance}</h2>
-            //   <button onClick={this.onDisconnect}>Disconnect</button>
-            // </div>
           )}
         </div>
       </div>
