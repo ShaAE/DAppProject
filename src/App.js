@@ -108,14 +108,44 @@ class App extends Component {
       });
   }
 
+  changePrice(taskId) {
+    this.setState({ loading: true });
+    this.state.contract.methods
+      .changeSoldStatus(taskId)
+      .send({ from: this.state.account })
+      .once("receipt", (receipt) => {
+        this.updateData();
+      });
+  }
+
+  changeDescription(taskId) {
+    this.setState({ loading: true });
+    this.state.contract.methods
+      .changeSoldStatus(taskId)
+      .send({ from: this.state.account })
+      .once("receipt", (receipt) => {
+        this.updateData();
+      });
+  }
+
+  buyImage(taskId) {
+    this.setState({ loading: true });
+    this.state.contract.methods
+      .changeSoldStatus(taskId)
+      .send({ from: this.state.account })
+      .once("receipt", (receipt) => {
+        this.updateData();
+      });
+  }
+
   async updateData() {
-    const balance = await this.state.web3.eth.getBalance(account[0]);
+    const balance = await this.state.web3.eth.getBalance(this.state.account);
     this.setState({ balance: this.state.utils.fromWei(balance) });
-    const amountOfImages = await contract.methods.amountOfImages().call();
+    const amountOfImages = await this.state.contract.methods.amountOfImages().call();
     this.setState({ amountOfImages });
     this.setState({ images: [] });
     for (let i = 1; i <= amountOfImages; i++) {
-      const image = await contract.methods.allImages(i).call();
+      const image = await this.state.contract.methods.allImages(i).call();
       this.setState({ images: [...this.state.images, image] });
     }
     this.setState({ loading: false });

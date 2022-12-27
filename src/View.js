@@ -4,22 +4,38 @@ class TodoList extends Component {
   render() {
     return (
       <div id="content">
-        <form className="text-center"
+        <form
+          className="text-center"
           onSubmit={(event) => {
             event.preventDefault();
-            this.props.createTask(this.task.value);
+            this.props.uploadImage(this.price.value, this.description.value);
           }}
         >
           <input
-            id="newTask"
+            id="price"
             ref={(input) => {
-              this.task = input;
+              this.price = input;
             }}
             type="text"
             className="form-control"
-            placeholder="Add task..."
+            placeholder="Вкажіть назву зображення"
             required
-          /><input className="btn btn-primary" type="submit" value="Підтвердити" />
+          />
+          <input
+            id="description"
+            ref={(input) => {
+              this.description = input;
+            }}
+            type="text"
+            className="form-control"
+            placeholder="Вкажіть назву зображення"
+            required
+          />
+          <input
+            className="btn btn-primary"
+            type="submit"
+            value="Підтвердити"
+          />
         </form>
         <ul id="taskList" className="list-ustyled">
           {this.props.tasks.map((task, key) => {
