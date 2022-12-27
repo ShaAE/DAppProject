@@ -5,6 +5,8 @@ import { SMART_CONTRACT_ABI, SMART_CONTRACT_ADDRESS } from "./config";
 import Upload from "./Upload";
 import View from "./View";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { create } from 'ipfs-http-client'
+import { Buffer } from "buffer";
 
 class App extends Component {
   //При завантаженні сторінки потрібно перевірити чи є в користувача Metamask
@@ -80,7 +82,8 @@ class App extends Component {
       loading: true,
       contract: {},
       uploadImage: false,
-      changeImageInformation: false
+      changeImageInformation: false,
+      buffer: {},
     };
     this.uploadImage = this.uploadImage.bind(this);
     this.changeSoldStatus = this.changeSoldStatus.bind(this);
@@ -90,16 +93,40 @@ class App extends Component {
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.toUploadWindow = this.toUploadWindow.bind(this);
+    this.captureFile = this.captureFile.bind(this);
   }
 
-  uploadImage(cid, price, description) {
+  captureFile(event) {
+    event.preventDefault();
+    const file = event.target.files[0]
+    const reader = new window.FileReader()
+    reader.readAsArrayBuffer(file)
+    reader.onloadend = () => {      
+      this.setState({ buffer: file });      
+    };    
+  }
+
+  async uploadImage(file, price, description) {    
     this.setState({ loading: true });
-    this.state.contract.methods
-      .createTask(cid, price, description)
-      .send({ from: this.state.account })
-      .once("receipt", (receipt) => {
-        this.updateData();
-      });
+    console.log(file, price, description)
+    // connect to the default API address http://localhost:5001
+    // const ipfs = create({url: "http://127.0.0.1:5001"})
+    // await ipfs.add(file) //, (error, result) => {
+      // if (error) {
+      //   console.log(error);
+      //   return;
+      // }
+      // console.log(result[0])
+      // console.log(price)
+      // console.log(description)
+      
+      // this.state.contract.methods
+      //   .uploadImage(result[0].hash, price, description)
+      //   .send({ from: this.state.account })
+      //   .once("receipt", (receipt) => {
+      //     this.updateData();
+      //   });
+    // });
   }
 
   changeSoldStatus(taskId) {
@@ -176,6 +203,11 @@ class App extends Component {
   render() {
     return (
       <div>
+        <nav className="navbar navbar-dark bg-primary">
+          <a className="navbar-brand" href="#">
+            Image Storage
+          </a>
+        </nav>
         <div>
           {this.state.hasMetamask ? (
             <div>
@@ -212,11 +244,9 @@ class App extends Component {
                           Перейти до вікна завантаження нового зображення
                         </button>
                         {this.state.uploadImage ? (
-                          <Upload uploadImage={this.uploadImage} />
+                          <Upload captureFile={this.captureFile} uploadImage={this.uploadImage} />
                         ) : (
-                          <View
-                            images={this.state.images}
-                          />
+                          <View images={this.state.images} />
                         )}
                       </div>
                     )}
