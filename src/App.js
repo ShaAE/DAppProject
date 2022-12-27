@@ -5,7 +5,7 @@ import { SMART_CONTRACT_ABI, SMART_CONTRACT_ADDRESS } from "./config";
 import Upload from "./Upload";
 import View from "./View";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { create } from 'ipfs-http-client'
+import { create } from "ipfs-http-client";
 import { Buffer } from "buffer";
 
 class App extends Component {
@@ -93,40 +93,29 @@ class App extends Component {
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.toUploadWindow = this.toUploadWindow.bind(this);
-    this.captureFile = this.captureFile.bind(this);
+    // this.captureFile = this.captureFile.bind(this);
   }
 
-  captureFile(event) {
-    event.preventDefault();
-    const file = event.target.files[0]
-    const reader = new window.FileReader()
-    reader.readAsArrayBuffer(file)
-    reader.onloadend = () => {      
-      this.setState({ buffer: file });      
-    };    
-  }
+  // captureFile(event) {
+  //   event.preventDefault();
+  //   const file = event.target.files[0];
+  //   const reader = new window.FileReader();
+  //   reader.readAsArrayBuffer(file);
+  //   reader.onloadend = () => {
+  //     this.setState({ buffer: file });
+  //   };
+  // }
 
-  async uploadImage(file, price, description) {    
+  uploadImage(cid, price, description) {
     this.setState({ loading: true });
-    console.log(file, price, description)
-    // connect to the default API address http://localhost:5001
-    // const ipfs = create({url: "http://127.0.0.1:5001"})
-    // await ipfs.add(file) //, (error, result) => {
-      // if (error) {
-      //   console.log(error);
-      //   return;
-      // }
-      // console.log(result[0])
-      // console.log(price)
-      // console.log(description)
-      
-      // this.state.contract.methods
-      //   .uploadImage(result[0].hash, price, description)
-      //   .send({ from: this.state.account })
-      //   .once("receipt", (receipt) => {
-      //     this.updateData();
-      //   });
-    // });
+    console.log(cid, price, description);
+    this.state.contract.methods
+      .uploadNewImage(cid, price, description)
+      .send({ from: this.state.account })
+      .once("receipt", (receipt) => {
+        this.updateData();
+      });
+      this.setState({ uploadImage: false });
   }
 
   changeSoldStatus(taskId) {
@@ -171,7 +160,7 @@ class App extends Component {
 
   async updateData() {
     const balance = await this.state.web3.eth.getBalance(this.state.account);
-    this.setState({ balance: this.state.utils.fromWei(balance) });
+    this.setState({ balance: this.state.web3.utils.fromWei(balance) });
     const amountOfImages = await this.state.contract.methods
       .amountOfImages()
       .call();
@@ -244,7 +233,9 @@ class App extends Component {
                           Перейти до вікна завантаження нового зображення
                         </button>
                         {this.state.uploadImage ? (
-                          <Upload captureFile={this.captureFile} uploadImage={this.uploadImage} />
+                          <Upload                            
+                            uploadImage={this.uploadImage}
+                          />
                         ) : (
                           <View images={this.state.images} />
                         )}
