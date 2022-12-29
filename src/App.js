@@ -5,8 +5,6 @@ import { SMART_CONTRACT_ABI, SMART_CONTRACT_ADDRESS } from "./config";
 import Upload from "./Upload";
 import View from "./View";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { create } from "ipfs-http-client";
-import { Buffer } from "buffer";
 
 class App extends Component {
   //При завантаженні сторінки потрібно перевірити чи є в користувача Metamask
@@ -93,6 +91,7 @@ class App extends Component {
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.toUploadWindow = this.toUploadWindow.bind(this);
+    this.toUMainWindow = this.toMainWindow.bind(this);    
     // this.captureFile = this.captureFile.bind(this);
   }
 
@@ -115,7 +114,7 @@ class App extends Component {
       .once("receipt", (receipt) => {
         this.updateData();
       });
-      this.setState({ uploadImage: false });
+    this.setState({ uploadImage: false });
   }
 
   changeSoldStatus(taskId) {
@@ -189,6 +188,10 @@ class App extends Component {
     this.setState({ uploadImage: true });
   }
 
+  toMainWindow() {
+    this.setState({ uploadImage: false });
+  }
+
   render() {
     return (
       <div>
@@ -196,6 +199,11 @@ class App extends Component {
           <a className="navbar-brand" href="#">
             Image Storage
           </a>
+          {(this.state.isConnected && !this.state.uploadImage) ? (<button className="btn btn-warning d-flex justify-content-end m-3" onClick={this.toUploadWindow}>
+             Перейти до вікна завантаження нового зображення
+          </button>) : (<button className="btn btn-warning d-flex justify-content-end m-3" onClick={{uploadImage: false}}>
+             На головну
+          </button>)}
         </nav>
         <div>
           {this.state.hasMetamask ? (
@@ -203,10 +211,11 @@ class App extends Component {
               {!this.state.isConnected ? (
                 <div className="text-center">
                   <h1 className="alert alert-success">
-                    Metamask is found, please click Login, to connect page!
+                    Вас вітає децентралізований додаток "ImgageStorage",
+                    будь-ласка натисніть кнопку Під'єднатися!
                   </h1>
                   <button className="btn btn-success" onClick={this.onConnect}>
-                    Login
+                    Під'єднатися
                   </button>
                 </div>
               ) : (
@@ -216,26 +225,21 @@ class App extends Component {
                     className="col-lg-12 d-flex justify-content-center"
                   >
                     {this.state.loading ? (
-                      <div id="loader" className="text-center">
+                      <div
+                        id="loader"
+                        className="text-center alert alert-warning"
+                      >
                         Зачейкайте доки дані завантажаться із мережі...
                       </div>
                     ) : (
                       <div id="main">
-                        <div className="container p-3 my-3 bg-primary text-white">
+                        <div className="container w-50 p-3 my-3 bg-primary text-white">
                           <h1>Інформація про користувача</h1>
                           <p>Адреса облікового запису: {this.state.account}</p>
                           <p>Баланс: {this.state.balance} Ether</p>
                         </div>
-                        <button
-                          className="btn btn-primary"
-                          onClick={this.toUploadWindow}
-                        >
-                          Перейти до вікна завантаження нового зображення
-                        </button>
                         {this.state.uploadImage ? (
-                          <Upload                            
-                            uploadImage={this.uploadImage}
-                          />
+                          <Upload uploadImage={this.uploadImage} />
                         ) : (
                           <View images={this.state.images} />
                         )}
