@@ -91,7 +91,7 @@ class App extends Component {
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.toUploadWindow = this.toUploadWindow.bind(this);
-    this.toUMainWindow = this.toMainWindow.bind(this);    
+    this.toMainWindow = this.toMainWindow.bind(this);    
     // this.captureFile = this.captureFile.bind(this);
   }
 
@@ -201,7 +201,7 @@ class App extends Component {
           </a>
           {(this.state.isConnected && !this.state.uploadImage) ? (<button className="btn btn-warning d-flex justify-content-end m-3" onClick={this.toUploadWindow}>
              Перейти до вікна завантаження нового зображення
-          </button>) : (<button className="btn btn-warning d-flex justify-content-end m-3" onClick={{uploadImage: false}}>
+          </button>) : (<button className="btn btn-warning d-flex justify-content-end m-3" onClick={this.toMainWindow}>
              На головну
           </button>)}
         </nav>
@@ -225,12 +225,12 @@ class App extends Component {
                     className="col-lg-12 d-flex justify-content-center"
                   >
                     {this.state.loading ? (
-                      <div
+                      <h3><div
                         id="loader"
                         className="text-center alert alert-warning"
                       >
                         Зачейкайте доки дані завантажаться із мережі...
-                      </div>
+                      </div></h3>
                     ) : (
                       <div id="main">
                         <div className="container w-50 p-3 my-3 bg-primary text-white">

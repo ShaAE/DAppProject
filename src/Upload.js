@@ -4,7 +4,7 @@ import { create } from "ipfs-http-client";
 class Upload extends Component {
   constructor(props) {
     super(props);
-    this.onSubmitHandler = this.onSubmitHandler.bind(this);
+    this.onSubmitHandler = this.onSubmitHandler.bind(this)
   }
 
   async onSubmitHandler(event) {
