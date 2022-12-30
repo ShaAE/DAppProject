@@ -233,7 +233,7 @@ class App extends Component {
                       </div></h3>
                     ) : (
                       <div id="main">
-                        <div className="container w-50 p-3 my-3 bg-primary text-white">
+                        <div className="container w-75 p-3 my-3 bg-primary text-white">
                           <h1>Інформація про користувача</h1>
                           <p>Адреса облікового запису: {this.state.account}</p>
                           <p>Баланс: {this.state.balance} Ether</p>

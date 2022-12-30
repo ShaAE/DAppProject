@@ -10,7 +10,7 @@ class Upload extends Component {
   async onSubmitHandler(event) {
     event.preventDefault();
     const form = event.target;
-    const files = form[3].files;
+    const files = form[4].files;
     const file = files[0];
     const ipfs = create({ url: "http://127.0.0.1:5001" });
     const result = await ipfs.add(file);
@@ -26,6 +26,16 @@ class Upload extends Component {
     return (
       <div id="content">
         <form onSubmit={this.onSubmitHandler}>
+        <input
+            id="price"
+            ref={(input) => {
+              this.price = input;
+            }}
+            type="text"
+            className="form-control"
+            placeholder="Дайте назву зображенню"
+            required
+          />
           <input
             id="price"
             ref={(input) => {
@@ -43,7 +53,7 @@ class Upload extends Component {
             }}
             type="text"
             className="form-control"
-            placeholder="Вкажіть назву зображення"
+            placeholder="Вкажіть короткий опис"
             required
           />
           <fieldset>
