@@ -8,10 +8,15 @@ class View extends Component {
       showDialog: false,
     };
     this.showDialog = this.showDialog.bind(this);
+    this.hideDialog = this.hideDialog.bind(this);
   }
 
   showDialog() {
     this.setState({ showDialog: true });
+  }
+
+  hideDialog() {
+    this.setState({ showDialog: false });
   }
 
   render() {
@@ -45,6 +50,7 @@ class View extends Component {
                   </h3>
                 </div>
                 <img
+                  onLoad={this.hideDialog}
                   onClick={this.showDialog}
                   src={`http://localhost:8080/ipfs/${image.cid}`}
                   className="img-thumbnail"
@@ -57,6 +63,9 @@ class View extends Component {
                   </h3>
                 {this.state.showDialog && (
                   <Dialog
+                    changeSoldStatus={this.props.changeSoldStatus}
+                    changePrice={this.props.changePrice}
+                    changeDescription={this.props.changeDescription}
                     id={image.id}
                     description={image.description}
                     price={image.price}

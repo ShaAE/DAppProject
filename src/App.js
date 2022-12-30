@@ -91,19 +91,8 @@ class App extends Component {
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.toUploadWindow = this.toUploadWindow.bind(this);
-    this.toMainWindow = this.toMainWindow.bind(this);    
-    // this.captureFile = this.captureFile.bind(this);
+    this.toMainWindow = this.toMainWindow.bind(this);
   }
-
-  // captureFile(event) {
-  //   event.preventDefault();
-  //   const file = event.target.files[0];
-  //   const reader = new window.FileReader();
-  //   reader.readAsArrayBuffer(file);
-  //   reader.onloadend = () => {
-  //     this.setState({ buffer: file });
-  //   };
-  // }
 
   uploadImage(cid, price, description) {
     this.setState({ loading: true });
@@ -127,20 +116,20 @@ class App extends Component {
       });
   }
 
-  changePrice(taskId) {
+  changePrice(taskId, newPrice) {
     this.setState({ loading: true });
     this.state.contract.methods
-      .changeSoldStatus(taskId)
+      .changePrice(taskId, newPrice)
       .send({ from: this.state.account })
       .once("receipt", (receipt) => {
         this.updateData();
       });
   }
 
-  changeDescription(taskId) {
+  changeDescription(taskId, newDescription) {
     this.setState({ loading: true });
     this.state.contract.methods
-      .changeSoldStatus(taskId)
+      .changeDescription(taskId, newDescription)
       .send({ from: this.state.account })
       .once("receipt", (receipt) => {
         this.updateData();
@@ -199,11 +188,21 @@ class App extends Component {
           <a className="navbar-brand" href="#">
             Image Storage
           </a>
-          {(this.state.isConnected && !this.state.uploadImage) ? (<button className="btn btn-warning d-flex justify-content-end m-3" onClick={this.toUploadWindow}>
-             Перейти до вікна завантаження нового зображення
-          </button>) : (<button className="btn btn-warning d-flex justify-content-end m-3" onClick={this.toMainWindow}>
-             На головну
-          </button>)}
+          {this.state.isConnected && !this.state.uploadImage ? (
+            <button
+              className="btn btn-warning d-flex justify-content-end m-3"
+              onClick={this.toUploadWindow}
+            >
+              Перейти до вікна завантаження нового зображення
+            </button>
+          ) : (
+            <button
+              className="btn btn-warning d-flex justify-content-end m-3"
+              onClick={this.toMainWindow}
+            >
+              На головну
+            </button>
+          )}
         </nav>
         <div>
           {this.state.hasMetamask ? (
@@ -225,12 +224,14 @@ class App extends Component {
                     className="col-lg-12 d-flex justify-content-center"
                   >
                     {this.state.loading ? (
-                      <h3><div
-                        id="loader"
-                        className="text-center alert alert-warning"
-                      >
-                        Зачейкайте доки дані завантажаться із мережі...
-                      </div></h3>
+                      <h3>
+                        <div
+                          id="loader"
+                          className="text-center alert alert-warning"
+                        >
+                          Зачейкайте доки дані завантажаться із мережі...
+                        </div>
+                      </h3>
                     ) : (
                       <div id="main">
                         <div className="container w-75 p-3 my-3 bg-primary text-white">
@@ -241,7 +242,12 @@ class App extends Component {
                         {this.state.uploadImage ? (
                           <Upload uploadImage={this.uploadImage} />
                         ) : (
-                          <View images={this.state.images} />
+                          <View
+                            changePrice={this.changePrice}
+                            changeDescription={this.changeDescription}
+                            changeSoldStatus={this.changeSoldStatus}
+                            images={this.state.images}
+                          />
                         )}
                       </div>
                     )}
